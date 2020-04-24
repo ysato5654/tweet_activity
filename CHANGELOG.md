@@ -1,3 +1,8 @@
+## v0.3.0
+[full changelog](http://github.com/ysato5654/tweet_activity/compare/v0.2.0...v0.3.0)
+
+* support 'by_days' database table only
+
 ## v0.2.0
 [full changelog](http://github.com/ysato5654/tweet_activity/compare/v0.1.0...v0.2.0)
 
