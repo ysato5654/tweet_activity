@@ -10,7 +10,7 @@ gem 'activerecord', '~> 5.2.2'
 gem 'sqlite3', '~> 1.3'
 
 gem 'bundler', '~> 1.17'
-gem 'rake', '~> 10.0'
+gem 'rake', '>= 12.3.3'
 gem 'rspec', '~> 3.0'
 
 group :test do
