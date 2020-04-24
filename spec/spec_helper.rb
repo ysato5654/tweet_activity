@@ -13,7 +13,19 @@
 # it.
 #
 
-require "bundler/setup"
+if ENV['CI']
+  require 'coveralls'
+  Coveralls.wear!
+  SimpleCov.formatter = SimpleCov::Formatter::MultiFormatter[Coveralls::SimpleCov::Formatter]
+  SimpleCov.start 'test_frameworks'
+end
+
+require 'simplecov'
+SimpleCov.start do
+  add_filter 'spec/tweet_activity_spec.rb'
+end
+
+require 'bundler/setup'
 require 'tweet_activity'
 
 # See http://rubydoc.info/gems/rspec-core/RSpec/Core/Configuration
