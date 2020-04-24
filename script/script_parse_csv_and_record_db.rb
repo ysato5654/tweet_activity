@@ -5,6 +5,13 @@ require 'optparse'
 
 require File.dirname(File.realpath(__FILE__)) + '/../lib/tweet_activity'
 
+Year    = '2020'
+Month   = 'Apr'
+Day     = 25
+Build   = [Day, Month, Year].join(' ')
+
+Version = Build + ' ' + '(' + 'tweet_activity' + ' ' + 'ver.' + TweetActivity::VERSION + ')'
+
 def parse_option
 	opt = OptionParser.new
 
@@ -197,10 +204,12 @@ end
 
 if $0 == __FILE__
 
-	STDOUT.puts __FILE__ + ' - ' + 'tweet_activity' + ' ' + 'ver.' + TweetActivity::VERSION
-	STDOUT.puts
-
 	option = parse_option
+
+	filename = File.basename(__FILE__).gsub(File.extname(__FILE__), '')
+
+	STDOUT.puts filename + ' ' + Version
+	STDOUT.puts
 
 	base_dir = File.expand_path(File.dirname(__FILE__))
 
