@@ -2,5 +2,5 @@
 # coding: utf-8
 
 module TweetActivity
-	VERSION = '0.3.1'
+	VERSION = '0.3.2'
 end

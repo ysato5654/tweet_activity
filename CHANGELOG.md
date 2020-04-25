@@ -1,3 +1,9 @@
+## v0.3.2
+[full changelog](http://github.com/ysato5654/tweet_activity/compare/v0.3.1...v0.3.2)
+
+* change database table data type
+* use local time zone
+
 ## v0.3.1
 [full changelog](http://github.com/ysato5654/tweet_activity/compare/v0.3.0...v0.3.1)
 

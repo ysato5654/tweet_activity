@@ -8,7 +8,7 @@ require File.dirname(File.realpath(__FILE__)) + '/../lib/tweet_activity'
 
 Year    = '2020'
 Month   = 'Apr'
-Day     = '25a'
+Day     = '25b'
 Build   = [Day, Month, Year].join(' ')
 
 Version = Build + ' ' + '(' + 'tweet_activity' + ' ' + 'ver.' + TweetActivity::VERSION + ')'
