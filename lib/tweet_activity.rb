@@ -17,6 +17,8 @@ module TweetActivity
 			tweet_activity_list = Array.new
 			key = Array.new
 
+			raise NotFound unless File.exist?(file)
+
 			csv = CSV.parse(File.read(file, encoding: 'UTF-8'))
 
 			csv.each_with_index do |line, idx|
