@@ -52,6 +52,8 @@ module TweetActivity
 
 			raise Sqlite3Connection if conn[:database].nil?
 
+			ActiveRecord::Base.default_timezone = :local
+
 			# connect database
 			ActiveRecord::Base.establish_connection(conn)
 
