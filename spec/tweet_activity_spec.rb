@@ -5,6 +5,45 @@ RSpec.describe TweetActivity do
 		expect(TweetActivity::VERSION).not_to be nil
 	end
 
+	describe '#parse_csv(file)' do
+		subject do
+			TweetActivity.parse_csv(file)
+		end
+
+		describe 'success' do
+			let :file do
+				File.expand_path(File.dirname(__FILE__) + '/config/TweetActivity_parse_csv_success/tweet_activity.csv')
+			end
+
+			it 'tweet activity list is created' do
+				expect(subject.class).to be Array
+				expect(subject.empty?).to be false
+			end
+		end
+
+		describe 'unsuccess' do
+			context 'raise error' do
+				let :file do
+					File.expand_path(File.dirname(__FILE__) + '/config/TweetActivity_parse_csv_unsuccess/TweetActivity_NotFound/hoge.csv')
+				end
+
+				it '' do
+					expect { subject }.to raise_error(TweetActivity::NotFound)
+				end
+			end
+
+			context 'raise error' do
+				let :file do
+					File.expand_path(File.dirname(__FILE__) + '/config/TweetActivity_parse_csv_unsuccess/TweetActivity_CSVFormatError/tweet_activity.csv')
+				end
+
+				it '' do
+					expect { subject }.to raise_error(TweetActivity::CSVFormatError)
+				end
+			end
+		end
+	end
+
 	describe '#connect(database)' do
 		describe 'success' do
 			before do
