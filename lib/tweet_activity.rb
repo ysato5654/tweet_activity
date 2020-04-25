@@ -107,7 +107,7 @@ module TweetActivity
 					t.integer   :tweet_id, :null => false
 					t.string    :tweet_permalink, :null => false
 					t.text      :tweet_text, :null => false
-					t.string    :time, :null => false
+					t.datetime  :time, :null => false
 					t.integer   :impressions, :null => false
 					t.integer   :engagements, :null => false
 					t.decimal   :engagement_rate, :null => false

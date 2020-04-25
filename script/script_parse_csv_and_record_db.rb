@@ -2,6 +2,7 @@
 # coding: utf-8
 
 require 'optparse'
+require 'date'
 
 require File.dirname(File.realpath(__FILE__)) + '/../lib/tweet_activity'
 
@@ -153,7 +154,7 @@ def record_db option, database, tweet_activity_list
 				t.tweet_id = tweet_activity[:Tweet_id]
 				t.tweet_permalink = tweet_activity[:Tweet_permalink]
 				t.tweet_text = tweet_activity[:Tweet_text]
-				t.time = tweet_activity[:time]
+				t.time = DateTime.parse(tweet_activity[:time])
 				t.impressions = tweet_activity[:impressions]
 				t.engagements = tweet_activity[:engagements]
 				t.engagement_rate = tweet_activity[:engagement_rate]
