@@ -7,7 +7,7 @@ require File.dirname(File.realpath(__FILE__)) + '/../lib/tweet_activity'
 
 Year    = '2020'
 Month   = 'Apr'
-Day     = 25
+Day     = '25a'
 Build   = [Day, Month, Year].join(' ')
 
 Version = Build + ' ' + '(' + 'tweet_activity' + ' ' + 'ver.' + TweetActivity::VERSION + ')'
@@ -67,8 +67,11 @@ def parse_csv option, base_dir
 		begin
 			tweet_activity_list.push TweetActivity.parse_csv(filepath)
 		rescue Exception => e
-			STDERR.puts "#{__FILE__}:#{__LINE__}: #{e.message} (#{e.class})"
-			STDERR.puts
+			if e.class == TweetActivity::NotFound
+				STDERR.puts "#{__FILE__}:#{__LINE__}: #{e.message} - #{filepath} (#{e.class})"
+			else
+				STDERR.puts "#{__FILE__}:#{__LINE__}: #{e.message} (#{e.class})"
+			end
 
 			exit(0)
 		end
@@ -95,9 +98,10 @@ def record_db option, database, tweet_activity_list
 		begin
 			TweetActivity.connect(database)
 		rescue Exception => e
-			case e.class
-				when TweetActivity::NotFound then STDERR.puts "#{__FILE__}:#{__LINE__}: #{e.message} - #{database} (#{e.class})"
-				else                              STDERR.puts "#{__FILE__}:#{__LINE__}: #{e.message} (#{e.class})"
+			if e.class == TweetActivity::NotFound
+				STDERR.puts "#{__FILE__}:#{__LINE__}: #{e.message} - #{database} (#{e.class})"
+			else
+				STDERR.puts "#{__FILE__}:#{__LINE__}: #{e.message} (#{e.class})"
 			end
 
 			exit(0)
