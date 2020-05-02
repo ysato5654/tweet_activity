@@ -7,11 +7,11 @@ require 'date'
 require File.dirname(File.realpath(__FILE__)) + '/../lib/tweet_activity'
 
 Year    = '2020'
-Month   = 'Apr'
-Day     = 25
+Month   = 'May'
+Day     = 02
 Build   = [Day, Month, Year].join(' ')
 
-Version = Build + ' ' + '(' + 'tweet_activity' + ' ' + 'ver.' + TweetActivity::VERSION + ')'
+Version = Build + ' ' + '(' + 'tweet_activity' + ' ' + 'v' + TweetActivity::VERSION + ')'
 
 def parse_option
 	opt = OptionParser.new
