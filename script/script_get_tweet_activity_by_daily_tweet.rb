@@ -8,7 +8,7 @@ require File.dirname(File.realpath(__FILE__)) + '/../lib/tweet_activity'
 
 Year    = '2020'
 Month   = 'May'
-Day     = 02
+Day     = '02a'
 Build   = [Day, Month, Year].join(' ')
 
 Version = Build + ' ' + '(' + 'tweet_activity' + ' ' + 'v' + TweetActivity::VERSION + ')'
@@ -137,6 +137,10 @@ def pack_every_month daily_tweet_activity_list
 			monthly_tweet_activity[:follows]             += daily_tweet_activity.follows
 		end
 	end
+
+	monthly_tweet_activity[:engagement_rate] = (monthly_tweet_activity[:engagement_rate] * monthly_tweet_activity[:engagements] / monthly_tweet_activity[:impressions] * 100.0).to_f.round(2)
+
+	monthly_tweet_activity_list.push monthly_tweet_activity
 
 	monthly_tweet_activity_list
 end
