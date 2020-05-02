@@ -1,3 +1,8 @@
+## v1.0.1
+[full changelog](http://github.com/ysato5654/tweet_activity/compare/v1.0.0...v1.0.1)
+
+* update script
+
 ## v1.0.0
 [full changelog](http://github.com/ysato5654/tweet_activity/compare/v0.3.2...v1.0.0)
 
