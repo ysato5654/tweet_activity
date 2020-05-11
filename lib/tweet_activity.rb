@@ -5,8 +5,8 @@ require 'csv'
 require 'yaml'
 require 'active_record'
 
-require File.expand_path(File.dirname(__FILE__) + '/tweet_activity/version')
-require File.expand_path(File.dirname(__FILE__) + '/tweet_activity/error')
+require 'tweet_activity/version'
+require 'tweet_activity/error'
 
 module TweetActivity
 
