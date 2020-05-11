@@ -1,3 +1,9 @@
+## v1.0.2
+[full changelog](http://github.com/ysato5654/tweet_activity/compare/v1.0.1...v1.0.2)
+
+* update required gem library version
+* cahnge the definition way to include file
+
 ## v1.0.1
 [full changelog](http://github.com/ysato5654/tweet_activity/compare/v1.0.0...v1.0.1)
 
