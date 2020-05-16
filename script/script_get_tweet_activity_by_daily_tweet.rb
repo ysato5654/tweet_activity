@@ -1,48 +1,21 @@
 #! /opt/local/bin/ruby
 # coding: utf-8
 
-require 'optparse'
 require 'date'
-
-require File.dirname(File.realpath(__FILE__)) + '/../lib/tweet_activity'
+require 'tweet_activity'
+require File.dirname(File.realpath(__FILE__)) + '/command_line_option'
 
 Year    = '2020'
 Month   = 'May'
-Day     = '02a'
+Day     = '16'
 Build   = [Day, Month, Year].join(' ')
 
 Version = Build + ' ' + '(' + 'tweet_activity' + ' ' + 'v' + TweetActivity::VERSION + ')'
 
-def parse_option
-	opt = OptionParser.new
+Period = [:daily, :weekly, :monthly]
+Options = {:short => 'p', :long => 'period', :arg => Period, :description => 'period of tweet activity (daily, weekly or monthly)'}
 
-	option = Hash.new
-	option[:daily] = false
-	option[:weekly] = false
-	option[:monthly] = false
-
-	opt.on('-d', '--daily', 'daily activity by daily tweet') { |v| option[:daily] = v }
-	opt.on('-w', '--weekly', 'weekly activity by daily tweet') { |v| option[:weekly] = v }
-	opt.on('-m', '--monthly', 'monthly activity by daily tweet') { |v| option[:monthly] = v }
-
-	begin
-		opt.parse(ARGV)
-	rescue SystemExit => e
-		exit(0)
-	rescue Exception => e
-		#e.class
-		# => OptionParser::InvalidOption
-
-		STDERR.puts "#{__FILE__}:#{__LINE__}: #{e}"
-		STDOUT.puts
-
-		exit(0)
-	end
-
-	option
-end
-
-def parse_db option, database
+def parse_db(period:, database:)
 	STDOUT.puts '---- input ----'
 	STDOUT.puts YAML.load_file(database)['production']['database']
 	STDOUT.puts
@@ -58,14 +31,14 @@ def parse_db option, database
 		exit(0)
 	end
 
-	if option[:daily]
+	if period == :daily
 		daily_tweet_activity_list = TweetActivity::ByDays.all.order(:date => 'ASC').select(:date, :tweets_published, :impressions, :engagements, :engagement_rate)
-	#elsif option[:weekly]
-	elsif option[:monthly]
+	#elsif period == :weekly
+	elsif period == :monthly
 		daily_tweet_activity_list = TweetActivity::ByDays.all.order(:date => 'ASC').select(:date, :tweets_published, :impressions, :engagements, :engagement_rate, :user_profile_clicks, :follows)
 	end
 
-	if option[:daily]
+	if period == :daily
 		STDOUT.puts '---- output ----'
 
 		key = [:date, :tweets_published, :impressions, :engagements, :engagement_rate]
@@ -86,9 +59,9 @@ def parse_db option, database
 		end
 
 		STDOUT.puts
-	#elsif option[:weekly]
+	#elsif period == :weekly
 		#weekly_tweet_activity_list = pack_every_week(daily_tweet_activity_list)
-	elsif option[:monthly]
+	elsif period == :monthly
 		monthly_tweet_activity_list = pack_every_month(daily_tweet_activity_list)
 
 		STDOUT.puts '---- output ----'
@@ -160,7 +133,26 @@ end
 
 if $0 == __FILE__
 
-	option = parse_option
+	command_line_option = TweetActivityScript::CommandLineOption.new(:param => Options)
+
+	# parse option
+	begin
+		option = command_line_option.parse
+
+	# display help or no necessary option fail
+	rescue SystemExit => e
+		exit(0)
+
+	rescue TweetActivityScript::MissingOption => e
+		STDERR.puts "#{__FILE__}: #{e.message} (--help will show valid options)"
+		exit(0)
+
+	# invalid option (undefined option) or missing argument or invalid argument
+	rescue Exception => e
+		STDERR.puts "#{__FILE__}: #{e} (--help will show valid options)"
+		exit(0)
+
+	end
 
 	filename = File.basename(__FILE__).gsub(File.extname(__FILE__), '')
 
@@ -169,6 +161,6 @@ if $0 == __FILE__
 
 	database = File.expand_path(File.dirname(__FILE__) + '/database.yml')
 
-	parse_db(option, database)
+	parse_db(:period => option[:period], :database => database)
 
 end

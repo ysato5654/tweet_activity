@@ -1,51 +1,27 @@
 #! /opt/local/bin/ruby
 # coding: utf-8
 
-require 'optparse'
 require 'date'
-
-require File.dirname(File.realpath(__FILE__)) + '/../lib/tweet_activity'
+require 'tweet_activity'
+require File.dirname(File.realpath(__FILE__)) + '/command_line_option'
 
 Year    = '2020'
 Month   = 'May'
-Day     = 02
+Day     = '16'
 Build   = [Day, Month, Year].join(' ')
 
 Version = Build + ' ' + '(' + 'tweet_activity' + ' ' + 'v' + TweetActivity::VERSION + ')'
 
-def parse_option
-	opt = OptionParser.new
+Type = [:by_day, :by_tweet]
+Options = {:short => 't', :long => 'type', :arg => Type, :description => 'activity csv file type (by_day or by_tweet)'}
 
-	option = Hash.new
-	option[:by_day] = false
-	option[:by_tweet] = false
-
-	opt.on('-d', '--by_day', 'activity csv is by day') { |v| option[:by_day] = v }
-	opt.on('-t', '--by_tweet', 'activity csv is by tweet') { |v| option[:by_tweet] = v }
-
-	begin
-		opt.parse(ARGV)
-	rescue SystemExit => e
-		exit(0)
-	rescue Exception => e
-		#e.class
-		# => OptionParser::InvalidOption
-
-		STDERR.puts "#{__FILE__}:#{__LINE__}: #{e}"
-		STDOUT.puts
-
-		exit(0)
-	end
-
-	option
-end
-
-def parse_csv option, base_dir
+def parse_csv(type:, base_dir:)
 	tweet_activity_list = Array.new
 
-	if option[:by_day]
+	case type
+	when :by_day
 		tweet_activity_csv_list = Dir::entries('.').select { |file| file =~ /^daily_tweet_activity_metrics_y_y_y_1214_/ and file =~ /_en.csv$/ }
-	elsif option[:by_tweet]
+	when :by_tweet
 		tweet_activity_csv_list = Dir::entries('.').select { |file| file =~ /^tweet_activity_metrics_y_y_y_1214_/ and file =~ /_en.csv$/ }
 	else
 		tweet_activity_csv_list = Array.new
@@ -83,15 +59,15 @@ def parse_csv option, base_dir
 	tweet_activity_list
 end
 
-def record_db option, database, tweet_activity_list
+def record_db(type:, database:, tweet_activity_list:)
 	STDOUT.puts '---- output ----'
 	STDOUT.puts YAML.load_file(database)['production']['database']
 	STDOUT.puts
 
 	TweetActivity.connect(database)
-	if option[:by_day]
+	if type == :by_day
 		before_count = TweetActivity::ByDays.all.count
-	elsif option[:by_tweet]
+	elsif type == :by_tweet
 		before_count = TweetActivity::ByTweets.all.count
 	end
 
@@ -108,7 +84,7 @@ def record_db option, database, tweet_activity_list
 			exit(0)
 		end
 
-		if option[:by_day]
+		if type == :by_day
 			TweetActivity::ByDays.find_or_create_by(:date => tweet_activity[:Date]) do |t|
 				t.date = tweet_activity[:Date]
 				t.tweets_published = tweet_activity[:Tweets_published]
@@ -149,7 +125,7 @@ def record_db option, database, tweet_activity_list
 				t.promoted_media_views = tweet_activity[:promoted_media_views]
 				t.promoted_media_engagements = tweet_activity[:promoted_media_engagements]
 			end
-		elsif option[:by_tweet]
+		elsif type == :by_tweet
 			TweetActivity::ByTweets.find_or_create_by(:tweet_id => tweet_activity[:Tweet_id]) do |t|
 				t.tweet_id = tweet_activity[:Tweet_id]
 				t.tweet_permalink = tweet_activity[:Tweet_permalink]
@@ -195,9 +171,9 @@ def record_db option, database, tweet_activity_list
 		end
 	end
 
-	if option[:by_day]
+	if type == :by_day
 		after_count = TweetActivity::ByDays.all.count
-	elsif option[:by_tweet]
+	elsif type == :by_tweet
 		after_count = TweetActivity::ByTweets.all.count
 	end
 
@@ -209,7 +185,26 @@ end
 
 if $0 == __FILE__
 
-	option = parse_option
+	command_line_option = TweetActivityScript::CommandLineOption.new(:param => Options)
+
+	# parse option
+	begin
+		option = command_line_option.parse
+
+	# display help or no necessary option fail
+	rescue SystemExit => e
+		exit(0)
+
+	rescue TweetActivityScript::MissingOption => e
+		STDERR.puts "#{__FILE__}: #{e.message} (--help will show valid options)"
+		exit(0)
+
+	# invalid option (undefined option) or missing argument or invalid argument
+	rescue Exception => e
+		STDERR.puts "#{__FILE__}: #{e} (--help will show valid options)"
+		exit(0)
+
+	end
 
 	filename = File.basename(__FILE__).gsub(File.extname(__FILE__), '')
 
@@ -218,13 +213,13 @@ if $0 == __FILE__
 
 	base_dir = File.expand_path(File.dirname(__FILE__))
 
-	tweet_activity_list = parse_csv(option, base_dir)
+	tweet_activity_list = parse_csv(:type => option[:type], :base_dir => base_dir)
 
 	STDOUT.puts
 
 	#database = File.expand_path(File.dirname(__FILE__) + '/../config/database.yml')
 	database = File.expand_path(File.dirname(__FILE__) + '/database.yml')
 
-	record_db(option, database, tweet_activity_list)
+	record_db(:type => option[:type], :database => database, :tweet_activity_list => tweet_activity_list)
 
 end
