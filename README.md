@@ -3,6 +3,18 @@
 
 # tweet_activity
 
+## Installation
+
+```
+$ rake install
+```
+
+Or
+
+```
+$ sudo rake install
+```
+
 ## Usage
 
 ### parse tweet activity's csv file
