@@ -7,13 +7,18 @@ require File.dirname(File.realpath(__FILE__)) + '/command_line_option'
 
 Year    = '2020'
 Month   = 'May'
-Day     = '16'
+Day     = '17'
 Build   = [Day, Month, Year].join(' ')
 
 Version = Build + ' ' + '(' + 'tweet_activity' + ' ' + 'v' + TweetActivity::VERSION + ')'
 
 Period = [:daily, :weekly, :monthly]
-Options = {:short => 'p', :long => 'period', :arg => Period, :description => 'period of tweet activity (daily, weekly or monthly)'}
+Options = {
+	:short => 'p',
+	:long => 'period',
+	:arg => Period,
+	:description => "period of packing tweet activity (#{Period.join('/')})"
+}
 
 def parse_db(period:, database:)
 	STDOUT.puts '---- input ----'
@@ -31,17 +36,18 @@ def parse_db(period:, database:)
 		exit(0)
 	end
 
-	if period == :daily
-		daily_tweet_activity_list = TweetActivity::ByDays.all.order(:date => 'ASC').select(:date, :tweets_published, :impressions, :engagements, :engagement_rate)
-	#elsif period == :weekly
-	elsif period == :monthly
-		daily_tweet_activity_list = TweetActivity::ByDays.all.order(:date => 'ASC').select(:date, :tweets_published, :impressions, :engagements, :engagement_rate, :user_profile_clicks, :follows)
+	case period
+	when :daily
+		key = [:date, :tweets_published, :impressions, :engagements, :engagement_rate]
+	when :weekly, :monthly
+		key = [:date, :tweets_published, :impressions, :engagements, :engagement_rate, :user_profile_clicks, :follows]
 	end
 
-	if period == :daily
-		STDOUT.puts '---- output ----'
+	daily_tweet_activity_list = TweetActivity::ByDays.all.order(:date => 'ASC').select(key)
 
-		key = [:date, :tweets_published, :impressions, :engagements, :engagement_rate]
+	case period
+	when :daily
+		STDOUT.puts '---- output ----'
 
 		STDOUT.puts key.join("\t")
 
@@ -59,20 +65,30 @@ def parse_db(period:, database:)
 		end
 
 		STDOUT.puts
-	#elsif period == :weekly
+	when :weekly
+		STDOUT.puts '---- output ----'
+
 		#weekly_tweet_activity_list = pack_every_week(daily_tweet_activity_list)
-	elsif period == :monthly
+
+		STDOUT.puts '---- output ----'
+
+		# header
+		STDOUT.puts weekly_tweet_activity_list.first.keys.join("\t")
+
+		# body
+		weekly_tweet_activity_list.each { |tweet_activity| STDOUT.puts tweet_activity.values.join("\t") }
+
+		STDOUT.puts
+	when :monthly
 		monthly_tweet_activity_list = pack_every_month(daily_tweet_activity_list)
 
 		STDOUT.puts '---- output ----'
 
-		monthly_tweet_activity_list.each_with_index do |tweet_activity, idx|
-			if idx == 0
-				STDOUT.puts tweet_activity.keys.join("\t")
-			end
+		# header
+		STDOUT.puts monthly_tweet_activity_list.first.keys.join("\t")
 
-			STDOUT.puts tweet_activity.values.join("\t")
-		end
+		# body
+		monthly_tweet_activity_list.each { |tweet_activity| STDOUT.puts tweet_activity.values.join("\t") }
 
 		STDOUT.puts
 	end
