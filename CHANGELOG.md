@@ -1,3 +1,8 @@
+## v1.0.3
+[full changelog](http://github.com/ysato5654/tweet_activity/compare/v1.0.2...v1.0.3)
+
+* update required bundler library version
+
 ## v1.0.2
 [full changelog](http://github.com/ysato5654/tweet_activity/compare/v1.0.1...v1.0.2)
 
