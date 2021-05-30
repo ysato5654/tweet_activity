@@ -5,20 +5,22 @@ require 'date'
 require 'tweet_activity'
 require File.dirname(File.realpath(__FILE__)) + '/command_line_option'
 
-Year    = '2020'
+Year    = '2021'
 Month   = 'May'
-Day     = '17'
+Day     = '30'
 Build   = [Day, Month, Year].join(' ')
 
 Version = Build + ' ' + '(' + 'tweet_activity' + ' ' + 'v' + TweetActivity::VERSION + ')'
 
 Period = [:daily, :weekly, :monthly]
-Options = {
+Options = [
+	{
 	:short => 'p',
 	:long => 'period',
 	:arg => Period,
 	:description => "period of packing tweet activity (#{Period.join('/')})"
-}
+	}
+]
 
 def parse_db(period:, database:)
 	STDOUT.puts '---- input ----'
@@ -149,7 +151,7 @@ end
 
 if $0 == __FILE__
 
-	command_line_option = TweetActivityScript::CommandLineOption.new(:param => Options)
+	command_line_option = TweetActivityScript::CommandLineOption.new(Options)
 
 	# parse option
 	begin

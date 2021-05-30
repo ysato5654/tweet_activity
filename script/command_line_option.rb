@@ -5,12 +5,14 @@ require 'optparse'
 
 module TweetActivityScript
     class CommandLineOption
-        def initialize(param:)
+        def initialize(params)
             @opt = OptionParser.new
 
             @option = Hash.new
 
-            @opt.on('-' + param[:short], '--' + param[:long] + ' VAL', param[:arg], param[:description]) { |v| @option[param[:long].to_sym] = v }
+            params.each { |param|
+                @opt.on('-' + param[:short], '--' + param[:long] + ' VAL', param[:arg], param[:description]) { |v| @option[param[:long].to_sym] = v }
+            }
         end
 
         # @raise [SystemExit] with help option

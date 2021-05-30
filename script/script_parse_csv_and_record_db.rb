@@ -5,24 +5,28 @@ require 'date'
 require 'tweet_activity'
 require File.dirname(File.realpath(__FILE__)) + '/command_line_option'
 
-Year    = '2020'
+Year    = '2021'
 Month   = 'May'
-Day     = '16'
+Day     = '30'
 Build   = [Day, Month, Year].join(' ')
 
 Version = Build + ' ' + '(' + 'tweet_activity' + ' ' + 'v' + TweetActivity::VERSION + ')'
 
 Type = [:by_day, :by_tweet]
-Options = {:short => 't', :long => 'type', :arg => Type, :description => 'activity csv file type (by_day or by_tweet)'}
+User = [:taikabu0, :y_y_y_1214]
+Options = [
+	{:short => 't', :long => 'type', :arg => Type, :description => "activity csv file type (#{Type.join(' or ')})"},
+	{:short => 'u', :long => 'username', :arg => User, :description => "twitter username (#{User.join(' or ')})"}
+]
 
-def parse_csv(type:, base_dir:)
+def parse_csv(type:, username:, base_dir:)
 	tweet_activity_list = Array.new
 
 	case type
 	when :by_day
-		tweet_activity_csv_list = Dir::entries('.').select { |file| file =~ /^daily_tweet_activity_metrics_y_y_y_1214_/ and file =~ /_en.csv$/ }
+		tweet_activity_csv_list = Dir::entries('.').select { |file| file =~ /^daily_tweet_activity_metrics_#{username}_/ and file =~ /_en.csv$/ }
 	when :by_tweet
-		tweet_activity_csv_list = Dir::entries('.').select { |file| file =~ /^tweet_activity_metrics_y_y_y_1214_/ and file =~ /_en.csv$/ }
+		tweet_activity_csv_list = Dir::entries('.').select { |file| file =~ /^tweet_activity_metrics_#{username}_/ and file =~ /_en.csv$/ }
 	else
 		tweet_activity_csv_list = Array.new
 	end
@@ -185,7 +189,7 @@ end
 
 if $0 == __FILE__
 
-	command_line_option = TweetActivityScript::CommandLineOption.new(:param => Options)
+	command_line_option = TweetActivityScript::CommandLineOption.new(Options)
 
 	# parse option
 	begin
@@ -213,7 +217,7 @@ if $0 == __FILE__
 
 	base_dir = File.expand_path(File.dirname(__FILE__))
 
-	tweet_activity_list = parse_csv(:type => option[:type], :base_dir => base_dir)
+	tweet_activity_list = parse_csv(:type => option[:type], :username => option[:username], :base_dir => base_dir)
 
 	STDOUT.puts
 
