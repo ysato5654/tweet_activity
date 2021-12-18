@@ -6,8 +6,8 @@ require 'tweet_activity'
 require File.dirname(File.realpath(__FILE__)) + '/command_line_option'
 
 Year    = '2021'
-Month   = 'May'
-Day     = '30'
+Month   = 'Dec'
+Day     = '18'
 Build   = [Day, Month, Year].join(' ')
 
 Version = Build + ' ' + '(' + 'tweet_activity' + ' ' + 'v' + TweetActivity::VERSION + ')'
@@ -68,7 +68,18 @@ def record_db(type:, database:, tweet_activity_list:)
 	STDOUT.puts YAML.load_file(database)['production']['database']
 	STDOUT.puts
 
-	TweetActivity.connect(database)
+	begin
+		TweetActivity.connect(database)
+	rescue Exception => e
+		if e.class == TweetActivity::NotFound
+			STDERR.puts "#{__FILE__}:#{__LINE__}: #{e.message} - #{database} (#{e.class})"
+		else
+			STDERR.puts "#{__FILE__}:#{__LINE__}: #{e.message} (#{e.class})"
+		end
+
+		exit(0)
+	end
+
 	if type == :by_day
 		before_count = TweetActivity::ByDays.all.count
 	elsif type == :by_tweet
@@ -76,18 +87,6 @@ def record_db(type:, database:, tweet_activity_list:)
 	end
 
 	tweet_activity_list.each do |tweet_activity|
-		begin
-			TweetActivity.connect(database)
-		rescue Exception => e
-			if e.class == TweetActivity::NotFound
-				STDERR.puts "#{__FILE__}:#{__LINE__}: #{e.message} - #{database} (#{e.class})"
-			else
-				STDERR.puts "#{__FILE__}:#{__LINE__}: #{e.message} (#{e.class})"
-			end
-
-			exit(0)
-		end
-
 		if type == :by_day
 			TweetActivity::ByDays.find_or_create_by(:date => tweet_activity[:Date]) do |t|
 				t.date = tweet_activity[:Date]
